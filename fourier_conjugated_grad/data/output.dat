@@ -1,0 +1,84 @@
+Prueba con lambda=1.000000
+
+Gradiente Conjugado:
+34 iteraciones
+0.562154 seg
+Error = 29622323.466718
+
+Precondicionador de Fourier:
+1 iteraciones
+0.120807 seg
+Error = 29622323.466718
+
+Prueba con lambda=5.000000
+
+Gradiente Conjugado:
+76 iteraciones
+1.217290 seg
+Error = 37532150.068340
+
+Precondicionador de Fourier:
+1 iteraciones
+0.096197 seg
+Error = 37532150.068341
+
+Prueba con lambda=10.000000
+
+Gradiente Conjugado:
+107 iteraciones
+1.702475 seg
+Error = 40132563.910565
+
+Precondicionador de Fourier:
+1 iteraciones
+0.093650 seg
+Error = 40132563.910564
+
+Prueba con lambda=15.000000
+
+Gradiente Conjugado:
+131 iteraciones
+2.079894 seg
+Error = 41511818.115935
+
+Precondicionador de Fourier:
+1 iteraciones
+0.093617 seg
+Error = 41511818.115938
+
+Prueba con lambda=20.000000
+
+Gradiente Conjugado:
+152 iteraciones
+2.407430 seg
+Error = 42474610.244533
+
+Precondicionador de Fourier:
+1 iteraciones
+0.092614 seg
+Error = 42474610.244534
+
+Prueba con lambda=25.000000
+
+Gradiente Conjugado:
+170 iteraciones
+2.690130 seg
+Error = 43236987.971601
+
+Precondicionador de Fourier:
+1 iteraciones
+0.092973 seg
+Error = 43236987.971600
+
+Prueba con lambda=30.000000
+
+Gradiente Conjugado:
+185 iteraciones
+2.935297 seg
+Error = 43883717.960947
+
+Precondicionador de Fourier:
+1 iteraciones
+0.092975 seg
+Error = 43883717.960947
+
