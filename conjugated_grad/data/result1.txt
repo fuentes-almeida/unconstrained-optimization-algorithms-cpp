@@ -1,0 +1,12 @@
+Prueba con lambda=1.000000
+
+Gradiente Conjugado:
+35 iteraciones
+1.069238 seg
+Error = 435915434.582467
+
+Gauss Seidel:
+102 iteraciones
+1.237859 seg
+Error = 435830280.801435
+
