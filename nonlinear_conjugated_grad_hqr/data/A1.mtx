@@ -1,0 +1,138 @@
+    /*///si el modelo cuadratico no satisface la condicion aplicamos el modelo cubico
+        Vector *Coefficients=RequestVectorDoubleMem(2);
+        Matrix *Aux=RequestMatrixDoubleMem(2,2);
+        Vector *Aux2=RequestVectorDoubleMem(2);
+
+        double aux3=1/(alpha1*alpha1*alpha2*alpha2*(alpha2-alpha1));
+        Aux->data[0]= alpha1*alpha1;
+        Aux->data[1]=-alpha2*alpha2;
+        Aux->data[2]=-alpha1*alpha1*alpha1;
+        Aux->data[3]= alpha2*alpha2*alpha2;
+
+        matrixScalarProduct(alpha_p,p,alpha2);
+        matrixAdd(x,alpha_p,x_new);
+        double phi_alpha2=ModelFunction(x_new,y,lambda,k,0);
+
+        Aux2->data[0]=phi_alpha2-phi01-phi02*alpha2;
+        Aux2->data[1]=phi_alpha1-phi01-phi02*alpha1;
+
+        matrixVectorProduct(Aux,Aux2,Coefficients);
+        Coefficients->data[0]*=aux3;
+        Coefficients->data[1]*=aux3;
+
+        double a=Coefficients->data[0];
+        double b=Coefficients->data[1];
+
+        double alpha3=(-b+sqrt(b*b-3*a*phi02))/(3*a);
+
+    if (StrongWolfe(alpha3,gkpk,x,y,p,grad,fx,lambda,k)==1)
+        return alpha3;
+
+        FreeMatrixMem(Aux);
+        FreeVectorMem(Aux2);
+        FreeVectorMem(Coefficients);*/
+
+
+
+double zoom(double alpha0,double alpha_lo, double alpha_hi,Matrix *x, Matrix *y, double fx, Matrix *gradk, Matrix *pk, double lambda, double k)
+{
+    double c1=0.01,c2=0.2;
+    int N=x->rows, M=x->cols, i=0;
+
+    Matrix *alpha_pk=RequestMatrixDoubleMem(N,M);
+    Matrix *x_new=RequestMatrixDoubleMem(N,M);
+    Matrix *gradk_new=RequestMatrixDoubleMem(N,M);
+
+    double phi01=fx;
+    double phi02=matrixInnerProduct(gradk,pk);
+
+    while(i<3)
+    {
+        i++;
+        double alpha_j=fabs(alpha_hi-alpha_lo)/2;
+
+        matrixScalarProduct(alpha_pk,pk,alpha_j);
+        matrixAdd(x,alpha_pk,x_new);
+        double phi_alpha_j=ModelFunction(x_new,y,lambda,k,0);
+
+        ModelFunctionGradient(x_new,y,gradk_new,lambda,k,0);
+        double phi2_alpha_j=matrixInnerProduct(gradk_new,pk);
+
+        matrixScalarProduct(alpha_pk,pk,alpha_lo);
+        matrixAdd(x,alpha_pk,x_new);
+        double phi_alpha_lo=ModelFunction(x_new,y,lambda,k,0);
+
+        if (phi_alpha_j>(phi01+c1*alpha_j*phi02) || phi_alpha_j>=phi_alpha_lo)
+            alpha_hi=alpha_j;
+        else
+        {
+            if (fabs(phi2_alpha_j)<=-c2*phi02)
+            {
+                double alpha_star=alpha_j;
+                return alpha_star;
+            }
+
+            if (phi2_alpha_j*(alpha_hi-alpha_lo)>=0)
+                alpha_hi=alpha_lo;
+
+            alpha_lo=alpha_j;
+        }
+    }
+    FreeMatrixMem(alpha_pk);
+    FreeMatrixMem(x_new);
+    FreeMatrixMem(gradk_new);
+
+    return alpha0;
+}
+
+double LineSearch(double alpha0, double alpha_max, Matrix *x, Matrix *y, double fx, Matrix *gradk, Matrix *pk, double lambda, double k)
+{
+    int N=x->rows, M=x->cols, i=0;
+    double alpha=0;
+    double alpha_next=alpha_max*rand()/RAND_MAX;
+
+    double c1=0.01,c2=0.2;
+    Matrix *alpha_pk=RequestMatrixDoubleMem(N,M);
+    Matrix *x_new=RequestMatrixDoubleMem(N,M);
+    Matrix *gradk_new=RequestMatrixDoubleMem(N,M);
+
+    double phi01=fx;
+    double phi02=matrixInnerProduct(gradk,pk);
+
+    while(true)
+    {
+        matrixScalarProduct(alpha_pk,pk,alpha);
+        matrixAdd(x,alpha_pk,x_new);
+        double phi_alpha=ModelFunction(x_new,y,lambda,k,0);
+
+        matrixScalarProduct(alpha_pk,pk,alpha_next);
+        matrixAdd(x,alpha_pk,x_new);
+        double phi_alpha_next=ModelFunction(x_new,y,lambda,k,0);
+        ModelFunctionGradient(x_new,y,gradk_new,lambda,k,0);
+        double phi2_alpha=matrixInnerProduct(gradk_new,pk);
+
+        if (phi_alpha_next>(phi01+c1*alpha_next*phi02) || (phi_alpha_next>=phi_alpha && i>1))
+        {
+            double alpha_star=zoom(alpha0,alpha,alpha_next,x,y,fx,gradk,pk,lambda,k);
+            return alpha_star;
+        }
+        if (fabs(phi2_alpha)<=-c2*phi02)
+        {
+            double alpha_star=alpha_next;
+            return alpha_star;
+        }
+        if (phi2_alpha>=0)
+        {
+            double alpha_star=zoom(alpha0,alpha_next,alpha,x,y,fx,gradk,pk,lambda,k);
+            return alpha_star;
+        }
+        double aux=(alpha_max-alpha_next)*rand()/RAND_MAX+alpha_next;
+        alpha=alpha_next;
+        alpha_next=aux;
+        i++;
+    }
+    FreeMatrixMem(alpha_pk);
+    FreeMatrixMem(x_new);
+    FreeMatrixMem(gradk_new);
+}
+
